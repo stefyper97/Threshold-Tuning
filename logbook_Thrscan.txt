@@ -1,0 +1,67 @@
+
+27 56 50 0 68 HIC_027/Vbb_0/20211018_093334_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_50/thrscan_analysis_output/
+27 56 60 0 68 HIC_027/Vbb_0/20211018_100737_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_60/thrscan_analysis_output/
+27 56 66 0 68 HIC_027/Vbb_0/20211018_125214_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_66/thrscan_analysis_output/
+27 56 70 0 68 HIC_027/Vbb_0/20211018_105909_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_70/thrscan_analysis_output/
+27 56 74 0 68 HIC_027/Vbb_0/20211018_122145_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_74/thrscan_analysis_output/
+
+
+27 46 50 0 58 HIC_027/Vbb_0/20211014_095856_thrscan_HIC_027_dark_VCASN_46_VCASN2_58_ITHR_50/thrscan_analysis_output/
+27 56 50 0 68 HIC_027/Vbb_0/20211014_104111_thrscan_HIC_027_dark_VCASN_56_VCASN2_68_ITHR_50/thrscan_analysis_output/
+27 60 50 0 72 HIC_027/Vbb_0/20211014_114321_thrscan_HIC_027_dark_VCASN_60_VCASN2_72_ITHR_50/thrscan_analysis_output/
+27 64 50 0 76 HIC_027/Vbb_0/20211018_132335_thrscan_HIC_027_dark_VCASN_64_VCASN2_76_ITHR_50/thrscan_analysis_output/
+27 68 50 0 80 HIC_027/Vbb_0/20211018_140526_thrscan_HIC_027_dark_VCASN_68_VCASN2_80_ITHR_50/thrscan_analysis_output/
+
+
+27 111 50 -3 123 HIC_027/Vbb_-3/20211013_172301_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 111 52 -3 123 HIC_027/Vbb_-3/20211014_142736_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_52_Vbb_-3/thrscan_analysis_output/
+27 111 56 -3 123 HIC_027/Vbb_-3/20211014_150531_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_56_Vbb_-3/thrscan_analysis_output/
+27 111 64 -3 123 HIC_027/Vbb_-3/20211014_154045_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_64_Vbb_-3/thrscan_analysis_output/
+27 111 70 -3 123 HIC_027/Vbb_-3/20211014_161500_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_70_Vbb_-3/thrscan_analysis_output/
+27 111 80 -3 123 HIC_027/Vbb_-3/20211014_164731_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_80_Vbb_-3/thrscan_analysis_output/
+
+
+27 105 50 -3 117 HIC_027/Vbb_-3/20211013_102241_thrscan_HIC_027_dark_VCASN_105_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 107 50 -3 119 HIC_027/Vbb_-3/20211013_154051_thrscan_HIC_027_dark_VCASN_107_VCASN2_119_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 109 50 -3 121 HIC_027/Vbb_-3/20211013_165113_thrscan_HIC_027_dark_VCASN_109_VCASN2_121_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 111 50 -3 123 HIC_027/Vbb_-3/20211013_172301_thrscan_HIC_027_dark_VCASN_111_VCASN2_123_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 113 50 -3 125 HIC_027/Vbb_-3/20211013_175657_thrscan_HIC_027_dark_VCASN_113_VCASN2_125_ITHR_50_Vbb_-3/thrscan_analysis_output/
+
+
+27 105 50 -3 117 HIC_027/Vbb_-3/20211013_102241_thrscan_HIC_027_dark_VCASN_105_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 107 50 -3 117 HIC_027/Vbb_-3/20211013_105316_thrscan_HIC_027_dark_VCASN_107_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 109 50 -3 117 HIC_027/Vbb_-3/20211013_112238_thrscan_HIC_027_dark_VCASN_109_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 111 50 -3 117 HIC_027/Vbb_-3/20211013_115816_thrscan_HIC_027_dark_VCASN_111_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+27 113 50 -3 117 HIC_027/Vbb_-3/20211013_141047_thrscan_HIC_027_dark_VCASN_113_VCASN2_117_ITHR_50_Vbb_-3/thrscan_analysis_output/
+
+
+27 56 50 0 57 HIC_027/Vbb_0/20211012_120301_thrscan_HIC_027_dark_VCASN_56_ITHR_50/thrscan_analysis_output/
+27 56 60 0 57 HIC_027/Vbb_0/20211012_123556_thrscan_HIC_027_dark_VCASN_56_ITHR_60/thrscan_analysis_output/
+27 56 66 0 57 HIC_027/Vbb_0/20211012_145241_thrscan_HIC_027_dark_VCASN_56_ITHR_66/thrscan_analysis_output/
+27 56 70 0 57 HIC_027/Vbb_0/20211012_131041_thrscan_HIC_027_dark_VCASN_56_ITHR_70/thrscan_analysis_output/
+27 56 74 0 57 HIC_027/Vbb_0/20211012_142328_thrscan_HIC_027_dark_VCASN_56_ITHR_74/thrscan_analysis_output/
+
+
+27 50 38 0 57 HIC_027/Vbb_0/20211012_103553_thrscan_HIC_027_dark_VCASN_50_ITHR_38/thrscan_analysis_output/
+27 50 40 0 57 HIC_027/Vbb_0/20211012_110518_thrscan_HIC_027_dark_VCASN_50_ITHR_40/thrscan_analysis_output/
+27 50 42 0 57 HIC_027/Vbb_0/20211012_113247_thrscan_HIC_027_dark_VCASN_50_ITHR_42/thrscan_analysis_output/
+27 50 45 0 57 HIC_027/Vbb_0/20211007_134258_thrscan_HIC_027_dark_VCASN_50_ITHR_45/thrscan_analysis_output/
+27 50 47 0 57 HIC_027/Vbb_0/20211007_143307_thrscan_HIC_027_dark_VCASN_50_ITHR_47/thrscan_analysis_output/
+27 50 50 0 57 HIC_027/Vbb_0/20211007_145812_thrscan_HIC_027_dark_VCASN_50_ITHR_50/thrscan_analysis_output/
+27 50 52 0 57 HIC_027/Vbb_0/20211007_152218_thrscan_HIC_027_dark_VCASN_50_ITHR_52/thrscan_analysis_output/
+27 50 54 0 57 HIC_027/Vbb_0/20211007_154611_thrscan_HIC_027_dark_VCASN_50_ITHR_54/thrscan_analysis_output/
+27 50 56 0 57 HIC_027/Vbb_0/20210929_151343_thrscan_HIC_027_dark_Vcasn_50_Ithr_56/thrscan_analysis_output/
+27 50 58 0 57 HIC_027/Vbb_0/20210929_153529_thrscan_HIC_027_dark_Vcasn_50_Ithr_58/thrscan_analysis_output/
+27 50 60 0 57 HIC_027/Vbb_0/20210929_120312_thrscan_HIC_027_dark_Vcasn_50_Ithr_60/thrscan_analysis_output/
+27 50 70 0 57 HIC_027/Vbb_0/20210929_123049_thrscan_HIC_027_dark_Vcasn_50_Ithr_70/thrscan_analysis_output/
+
+
+27 46 50 0 57 HIC_027/Vbb_0/20210929_164518_thrscan_HIC_027_dark_Vcasn_46_Ithr_50/thrscan_analysis_output/
+27 48 50 0 57 HIC_027/Vbb_0/20210929_162638_thrscan_HIC_027_dark_Vcasn_48_Ithr_50/thrscan_analysis_output/
+27 50 50 0 57 HIC_027/Vbb_0/20211006_103625_thrscan_HIC_027_dark_Vcasn_50_Ithr_50/thrscan_analysis_output/
+27 52 50 0 57 HIC_027/Vbb_0/20211006_110532_thrscan_HIC_027_dark_Vcasn_52_Ithr_50/thrscan_analysis_output/
+27 54 50 0 57 HIC_027/Vbb_0/20211006_113239_thrscan_HIC_027_dark_Vcasn_54_Ithr_50/thrscan_analysis_output/
+27 56 50 0 57 HIC_027/Vbb_0/20211006_120916_thrscan_HIC_027_dark_Vcasn_56_Ithr_50/thrscan_analysis_output/
+27 58 50 0 57 HIC_027/Vbb_0/20211006_124212_thrscan_HIC_027_dark_Vcasn_58_Ithr_50/thrscan_analysis_output/
+27 60 50 0 57 HIC_027/Vbb_0/20211006_133659_thrscan_HIC_027_dark_Vcasn_60_Ithr_50/thrscan_analysis_output/
+
