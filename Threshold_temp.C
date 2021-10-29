@@ -137,7 +137,7 @@ void Threshold_temp(const char *dirFile){
   }
 
   TTree logtree("logbook", "Logbook file");
-  int HIC, Vcasn, Ithr, Vcasn2;
+  int HIC, Vcasn[Nchip], Ithr[Nchip], Vcasn2[Nchip];
   double Vbb, Temp;
   string Path;
   const char *pPath;
@@ -147,10 +147,10 @@ void Threshold_temp(const char *dirFile){
   double mean;
   double dev;
   
-  logtree.Branch("V_casn", &Vcasn, "Vcasn/I");
-  logtree.Branch("I_thr", &Ithr, "Ithr/I");
+  logtree.Branch("V_casn", &Vcasn, "Vcasn[10]/I");
+  logtree.Branch("I_thr", &Ithr, "Ithr[10]/I");
   logtree.Branch("V_back_bias", &Vbb, "Vbb/D");
-  logtree.Branch("V_casn2", &Vcasn2, "Vcasn2/I");
+  logtree.Branch("V_casn2", &Vcasn2, "Vcasn2[10]/I");
   logtree.Branch("Temperature", &Temp, "Temp/D");
   logtree.Branch("HIC_number", &HIC, "HIC/D");
   logtree.Branch("Path_to_data", &Path, "Path/C");
@@ -162,7 +162,7 @@ void Threshold_temp(const char *dirFile){
   logtree.Branch("Standard_Deviation_on_HIC", &dev, "dev/D");
 
   string prova;
-  while(in_dir>>HIC>>Vcasn>>Ithr>>Vbb>>Vcasn2>>Temp>>Path){
+  while(in_dir>>HIC>>Vbb>>Temp>>Path){
     cout<<Path<<endl;
     pPath = Path.c_str();
     gSystem->cd(pPath);
@@ -190,13 +190,14 @@ void Threshold_temp(const char *dirFile){
     cout<<"Mean Threshold on HIC "<<mean<<endl;
     cout<<"Standard deviation on HIC "<<dev<<endl;
     in.close();
-    /*    gSystem->cd("../");
+    gSystem->cd("../");
     ifstream in_reg("register_dump.txt");
     if(!in_reg){
       cout<<"Il file "<<"register_dump.txt"<<" non esiste"<<endl;
     }
     int i = 0;
-    string reg, val; 
+    string reg;
+    int val; 
     while(in_reg>>chip>>reg>>val){
       for(int i = 0; i < Nchip; i++){
 	if(chip == chipID[i]){
@@ -204,15 +205,16 @@ void Threshold_temp(const char *dirFile){
 	    Vcasn[i] = val;
 	  }
 	  if(reg == "0x607"){
-	    Vcasn_2[i] = val;
+	    Vcasn2[i] = val;
 	  }
 	  if(reg == "0x60e"){
 	    Ithr[i] = val;
 	  }
 	}
       }
-      }*/
-    gSystem->cd("../../../../");
+    }
+    in_reg.close();
+    gSystem->cd("../../../");
     logtree.Fill(); 
   }
     
