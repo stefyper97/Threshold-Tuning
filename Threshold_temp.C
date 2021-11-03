@@ -73,11 +73,8 @@ void threshold(const char *directory){
       
     }
     else{
-      //scrivere qualcosa per evitare il crash nel caso in cui ci siano dei chip sbondati
-      cout << "Unable to open file"<<endl;
-      cout<<myfile.eof()<<endl;
-      cout<<myfile.fail()<<endl;
-      cout<<myfile.bad()<<endl;
+      cout <<"Unable to open file "<<filename<<endl;
+      break;
     }
 
     c->cd(i + 1);
@@ -198,7 +195,7 @@ void Threshold_temp(const char *dirFile){
     int i = 0;
     string reg;
     int val; 
-    while(in_reg>>chip>>reg>>val){
+    while(in_reg>>chip>>reg>>std::hex>>val){
       for(int i = 0; i < Nchip; i++){
 	if(chip == chipID[i]){
 	  if(reg == "0x604"){
