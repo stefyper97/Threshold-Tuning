@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h>
 #include <fstream>
 #include <string>
 #include <TH1.h>
@@ -18,7 +19,7 @@
 
 using namespace std;
 
-double row[524209],column[524209],th[524209],sigma[524209],chi2[524209];
+double row, column, th, sigma, chi2;
 string prefix = "FitValues_hitmap_id0x";
 string chipID[Nchip] = {"70", "71", "72", "73", "74", "78", "79", "7a", "7b", "7c"};
 string suffix = ".txt";
@@ -64,27 +65,17 @@ void threshold(const char *directory){
     ifstream myfile (filename);
     if(myfile.good()){
       while (!myfile.eof()){
-	myfile>>row[num]>>column[num]>>th[num]>>sigma[num]>>chi2[num];
+	myfile>>row>>column>>th>>sigma>>chi2;
 
-	Thr.at(i)->Fill(th[num]);
-	Noise.at(i)->Fill(sigma[num]);
-
-	num++;
+	Thr.at(i)->Fill(th);
+	Noise.at(i)->Fill(sigma);
       }
       
       myfile.close();
-      
-      memset(row, 0, sizeof(row));
-      memset(column, 0, sizeof(column));
-      memset(th, 0, sizeof(th));
-      memset(sigma, 0, sizeof(sigma));
-      memset(chi2, 0, sizeof(chi2));
     }
     else{
-      cout << "Unable to open file"<<endl;
-      cout<<myfile.eof()<<endl;
-      cout<<myfile.fail()<<endl;
-      cout<<myfile.bad()<<endl;
+      cout <<"Unable to open file "<<filename<<endl;
+      break;
     }
 
     c->cd(i + 1);
@@ -145,7 +136,8 @@ void Threshold_ithr_vcasn(const char *dirFile){
   }
 
   TTree logtree("logbook", "Logbook file");
-  double HIC, Vcasn, Ithr, Vbb, Vcasn2;
+  int HIC;
+  double Vbb, Vcasn[Nchip], Ithr[Nchip], Vcasn2[Nchip];
   string Path;
   const char *pPath;
   string chip;
@@ -154,11 +146,11 @@ void Threshold_ithr_vcasn(const char *dirFile){
   double mean;
   double dev;
   
-  logtree.Branch("V_casn", &Vcasn, "Vcasn/D");
-  logtree.Branch("I_thr", &Ithr, "Ithr/D");
+  logtree.Branch("V_casn", &Vcasn[0], "Vcasn[10]/D");
+  logtree.Branch("I_thr", &Ithr[0], "Ithr[10]/D");
   logtree.Branch("V_back_bias", &Vbb, "Vbb/D");
-  logtree.Branch("V_casn_2", &Vcasn2, "Vcasn2/D");
-  logtree.Branch("HIC_number", &HIC, "HIC/D");
+  logtree.Branch("V_casn_2", &Vcasn2[0], "Vcasn2[10]/D");
+  logtree.Branch("HIC_number", &HIC, "HIC/I");
   logtree.Branch("Path_to_data", &Path, "Path/C");
   logtree.Branch("Threshold", &Thr[0], "Thr[10]/D");
   logtree.Branch("Error_Threshold", &ErThr[0], "ErThr[10]/D");
@@ -167,13 +159,7 @@ void Threshold_ithr_vcasn(const char *dirFile){
   logtree.Branch("Mean_Threshold_on_HIC", &mean, "mean/D");
   logtree.Branch("Standard_Deviation_on_HIC", &dev, "dev/D");
 
-  string prova;
-  /*  while(in_dir>>prova){
-    cout<<prova<<endl;
-    cout<<prova.c_str()<<endl;
-    if(prova.c_str() == 35 || prova.c_str() == 255) continue;
-    else{*/
-  while(in_dir>>HIC>>Vcasn>>Ithr>>Vbb>>Vcasn2>>Path){
+  while(in_dir>>HIC>>Vbb>>Path){
     cout<<Path<<endl;
     pPath = Path.c_str();
     gSystem->cd(pPath);
@@ -201,11 +187,33 @@ void Threshold_ithr_vcasn(const char *dirFile){
     cout<<"Mean Threshold on HIC "<<mean<<endl;
     cout<<"Standard deviation on HIC "<<dev<<endl;
     in.close();
-    gSystem->cd("../../../../");
+    gSystem->cd("../");
+    ifstream in_reg("register_dump.txt");
+    if(!in_reg){
+      cout<<"Il file "<<"register_dump.txt"<<" non esiste"<<endl;
+    }
+    string reg;
+    int val;
+    while(in_reg>>chip>>reg>>std::hex>>val){
+      for(int i = 0; i < Nchip; i++){
+	if(chip == ("0x" + chipID[i])){
+	  if(reg == "0x604"){
+            Vcasn[i] = val;
+          }
+          if(reg == "0x607"){
+            Vcasn2[i] = val;
+          }
+          if(reg == "0x60e"){
+            Ithr[i] = val;
+          }
+	}
+      }
+    }
+    in_reg.close();
+    gSystem->cd("../../../");
+    
     logtree.Fill(); 
   }
-  //}
-  //  }
     
   in_dir.close();
   
