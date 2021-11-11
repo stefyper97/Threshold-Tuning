@@ -6,6 +6,9 @@
 #include "TF1.h"
 #include "TROOT.h"
 #include "TFitResultPtr.h"
+#include "TH2.h"
+#include "TGraph2D.h"
+#include "TPad.h"
 
 
 #include <iostream>
@@ -140,8 +143,8 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	for(int iChip=0;iChip<NCHIP;++iChip){
 		if(vcasn_bestvalue[iChip]>0){
 			conf_output<<"[0x"<<std::hex<<chipname[iChip]<<"]"<<std::endl<<
-				"VCASN = 0x"<<std::hex<<vcasn_bestvalue[iChip]<<std::endl<<
-				"VCASN2 = 0x"<<std::hex<<vcasn_bestvalue[iChip]+12<<std::endl;
+				"VCASN = 0x"<<std::hex<<(int)vcasn_bestvalue[iChip]<<std::endl<<
+				"VCASN2 = 0x"<<std::hex<<(int)(vcasn_bestvalue[iChip]+12)<<std::endl;
 
 			graph_val[iChip]=new TGraphErrors(12); //number of points will be fixed?
 			int entry=0;
@@ -179,7 +182,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		
 				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be "<<round(ithr_threshold)<<std::endl;
 				//writing conf file
-				conf_output<<"ITHR = 0x"<<std::hex<<round(ithr_threshold)<<std::endl<<std::endl;
+				conf_output<<"ITHR = 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl<<std::endl;
 			}
 			else{
 				//if fit does not converge, the existing data are used to find the best value of ITHR. A warning is inserted as a comment on conf file
@@ -195,7 +198,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 					}
 				}
 			std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be "<<ithr_val.at(closest_index_ithr)<<std::endl;
-			conf_output<<"ITHR = 0x"<<std::hex<<ithr_val.at(closest_index_ithr)<<std::endl<<
+			conf_output<<"ITHR = 0x"<<std::hex<<(int)ithr_val.at(closest_index_ithr)<<std::endl<<
 			"; Warning! Fit doesn't converge. Using available data to find the best value"<<std::endl<<std::endl;
 			
 			}
@@ -214,7 +217,90 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 
 	}
 	can->Print(Form("fit_HIC%0.0f_vbb%0.0f_threshold%0.0f.pdf",HICnum,VBB_ref,threshold));
+	/*
+	//test: fit on VCASN distribution
+	//fixed ithr=50
+	TGraphErrors* vcasn_graph[NCHIP];
+	for(int iChip=0;iChip<NCHIP;++iChip){
+		vcasn_graph[iChip]=new TGraphErrors(10);
+		int entry=0;
+		for(int iA=0;iA<vcasn_val.size();++iA){
+			if(ithr_val.at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref && thr_val[iChip].at(iA)>0){
+				vcasn_graph[iChip]->SetPoint(entry,vcasn_val.at(iA),thr_val[iChip].at(iA));
+				vcasn_graph[iChip]->SetPointError(entry,0,thr_err_val[iChip].at(iA));
+				++entry;
+			}
+		}
+		vcasn_graph[iChip]->Fit("expo");
+
+		double p0_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(0);
+		double p1_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(1);
+
+		int vcasn_guess=round((log(threshold)-p0_exp)/p1_exp);
+
+		std::cout<<"Fit guess of VCASN for chip 0x"<<std::hex<<chipname[iChip]<<" is "<<std::dec<<vcasn_guess<<std::endl;
+
+		can->cd(iChip+1);
+		vcasn_graph[iChip]->SetTitle(Form("0x%x;VCASN;threshold [e-]",chipname[iChip]));
+		vcasn_graph[iChip]->SetMarkerStyle(22);
+		vcasn_graph[iChip]->Draw("AP");
+	}
+
+	can->Print("test_vcasn_fit.pdf");
+
+
+	//test: optimisation of procedure: interpolation on VCASN and ITHR and surface design to find the best value
+
+	TH2I* graph_surf[NCHIP];
+	TGraph2D* tgraph_surf[NCHIP];
+	for(int iChip=0;iChip<NCHIP;++iChip){
+		graph_surf[iChip]=new TH2I(Form("graph_surf_0x%x",chipname[iChip]),Form("0x%x;VCASN;ITHR;threshold [e-]",chipname[iChip]),10,50,80,10,50,80);
+		tgraph_surf[iChip]=new TGraph2D(12);
+		int entry=0;
+		for(int iA=0;iA<vcasn_val.size();++iA){
+			int xbin=graph_surf[iChip]->GetXaxis()->FindBin(vcasn_val.at(iA));
+			int ybin=graph_surf[iChip]->GetYaxis()->FindBin(ithr_val.at(iA));
+			
+			if(vbb_val.at(iA)==VBB_ref && graph_surf[iChip]->GetBinContent(xbin,ybin)==0){
+				graph_surf[iChip]->Fill(vcasn_val.at(iA),ithr_val.at(iA),thr_val[iChip].at(iA));
+				//std::cout<<vcasn_val.at(iA)<<"\t"<<ithr_val.at(iA)<<"\t"<<thr_val[iChip].at(iA)<<std::endl;
+				
+				tgraph_surf[iChip]->SetPoint(entry,vcasn_val.at(iA),ithr_val.at(iA),thr_val[iChip].at(iA));
+				++entry;
+				
 	
+			}
+		}
+		//interpolate
+		//for(int iVCASN=50;iVCASN<80;++iVCASN){
+			//graph_surf[iChip]->Interpolate(56,75);
+		//}
 	
+	}
+
+	can->Clear();
+	can->Divide(5,2);
+	can->Print("test_surf.pdf[");
+	for(int iChip=0;iChip<NCHIP;++iChip){
+		TPad* pad=(TPad*)can->cd(iChip+1);
+		pad->SetPhi(-45);
+		graph_surf[iChip]->SetStats(0);
+		graph_surf[iChip]->Draw("surf1");
+
+		
+	}
+	can->Print("test_surf.pdf");
+	
+	for(int iChip=0;iChip<NCHIP;++iChip){
+		TPad* pad=(TPad*)can->cd(iChip+1);
+		pad->SetPhi(-45);
+		
+		tgraph_surf[iChip]->SetTitle(Form("0x%x;VCASN;ITHR",chipname[iChip]));
+		tgraph_surf[iChip]->Draw("PCOL");
+	}
+	can->Print("test_surf.pdf");
+	
+	can->Print("test_surf.pdf]");
+	*/
 	return;
 }
