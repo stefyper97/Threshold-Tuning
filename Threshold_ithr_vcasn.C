@@ -129,15 +129,15 @@ void threshold(const char *directory){
  
 }
 
-void Threshold_ithr_vcasn(const char *dirFile){
+void Threshold_ithr_vcasn(const char *dirFile, bool check = true){
   ifstream in_dir(dirFile);
   if(!in_dir){
     cout<<"Il file "<<dirFile<<" non esiste"<<endl;
   }
 
   TTree logtree("logbook", "Logbook file");
-  int HIC;
-  double Vbb, Vcasn[Nchip], Ithr[Nchip], Vcasn2[Nchip];
+  int HIC, Vcasn[Nchip], Ithr[Nchip], Vcasn2[Nchip];
+  double Vbb;
   string Path;
   const char *pPath;
   string chip;
@@ -146,10 +146,10 @@ void Threshold_ithr_vcasn(const char *dirFile){
   double mean;
   double dev;
   
-  logtree.Branch("V_casn", &Vcasn[0], "Vcasn[10]/D");
-  logtree.Branch("I_thr", &Ithr[0], "Ithr[10]/D");
+  logtree.Branch("V_casn", &Vcasn[0], "Vcasn[10]/I");
+  logtree.Branch("I_thr", &Ithr[0], "Ithr[10]/I");
   logtree.Branch("V_back_bias", &Vbb, "Vbb/D");
-  logtree.Branch("V_casn_2", &Vcasn2[0], "Vcasn2[10]/D");
+  logtree.Branch("V_casn_2", &Vcasn2[0], "Vcasn2[10]/I");
   logtree.Branch("HIC_number", &HIC, "HIC/I");
   logtree.Branch("Path_to_data", &Path, "Path/C");
   logtree.Branch("Threshold", &Thr[0], "Thr[10]/D");
@@ -163,7 +163,9 @@ void Threshold_ithr_vcasn(const char *dirFile){
     cout<<Path<<endl;
     pPath = Path.c_str();
     gSystem->cd(pPath);
-    threshold(pPath);
+    if(check == true){
+      threshold(pPath);
+    }
     ifstream in("fit_data.txt");
     if(!in){
       cout<<"Il file "<<"fit_data.txt"<<" non esiste"<<endl;
@@ -187,7 +189,9 @@ void Threshold_ithr_vcasn(const char *dirFile){
     cout<<"Mean Threshold on HIC "<<mean<<endl;
     cout<<"Standard deviation on HIC "<<dev<<endl;
     in.close();
-    gSystem->cd("../");
+    if(check == true){
+      gSystem->cd("../");
+    }
     ifstream in_reg("register_dump.txt");
     if(!in_reg){
       cout<<"Il file "<<"register_dump.txt"<<" non esiste"<<endl;
@@ -217,7 +221,7 @@ void Threshold_ithr_vcasn(const char *dirFile){
     
   in_dir.close();
   
-  TFile* outfile = new TFile("Threshold_Parameters.root", "recreate");
+  TFile* outfile = new TFile(Form("Threshold_Parameters_HIC_0%d_Vbb_%0.0fV.root", HIC, Vbb), "recreate");
   logtree.Write();
   outfile->Write();
   outfile->Close();
