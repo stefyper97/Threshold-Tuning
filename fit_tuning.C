@@ -18,7 +18,22 @@
 #include <sstream>
 #include <cmath>
 
-void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const double threshold=150.,const double VBB_ref=0 /*possible values: 0, -3*/){
+void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const double threshold=150.,const double VBB_ref=0 /*possible values: 0, -1, -3*/){
+	
+	//testing the selection of correct VBB value
+	bool vbb_test=false;
+	if(VBB_ref==0) vbb_test=true;
+	if(VBB_ref==-1)vbb_test=true;
+	if(VBB_ref==-3) vbb_test=true;
+
+	if(!vbb_test){ 
+		std::cout<<"Warning! The selected VBB value is not correct. The allowed values are 0, -1 and -3."<<std::endl;
+
+		return;
+	} //if the value of vbb is not correct, the software stops
+
+
+
 	gROOT->SetBatch(kTRUE);
 
 	const int NCHIP=10;
@@ -105,6 +120,16 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		<<"; Threshold value expected "<<threshold<<std::endl
 		<<"; Values for VBB = "<<VBB_ref<<std::endl<<std::endl;	
 
+	//inserting VCLIP values for different VBB values
+	conf_output<<"[0xf0f]"<<std::endl;
+	if(VBB_ref==0)
+		conf_output<<"VCLIP = 0x0"<<std::endl<<std::endl;
+	if (VBB_ref==-1)
+		conf_output<<"VCLIP = 0x23"<<std::endl<<std::endl;
+	if (VBB_ref==-3)
+		conf_output<<"VCLIP = 0x3c"<<std::endl<<std::endl;
+
+
 	//searching VCASN best value for chips: run on fixed value of ITHR (50 is the default for ALICE)
 
 	const double ithr_ref=50.;
@@ -132,7 +157,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		}
 
 		double vcasn_ref=vcasn_val.at(closest_index_vcasn);
-		std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is "<<vcasn_ref<<std::endl;
+		std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<std::endl;
 		vcasn_bestvalue[iChip]=vcasn_ref;
 	}
 
@@ -180,9 +205,10 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 				//best value calculation
 				double ithr_threshold=(threshold-p0)/p1;
 		
-				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be "<<round(ithr_threshold)<<std::endl;
+				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl;
 				//writing conf file
 				conf_output<<"ITHR = 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl<<std::endl;
+				std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<p0+p1*ithr_threshold<<" (FIT)"<<std::endl;
 			}
 			else{
 				//if fit does not converge, the existing data are used to find the best value of ITHR. A warning is inserted as a comment on conf file
@@ -197,9 +223,10 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 						}
 					}
 				}
-			std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be "<<ithr_val.at(closest_index_ithr)<<std::endl;
+			std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)ithr_val.at(closest_index_ithr)<<std::endl;
 			conf_output<<"ITHR = 0x"<<std::hex<<(int)ithr_val.at(closest_index_ithr)<<std::endl<<
 			"; Warning! Fit doesn't converge. Using available data to find the best value"<<std::endl<<std::endl;
+			std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<(int)thr_val[iChip].at(closest_index_ithr)<<" err "<<(int)thr_err_val[iChip].at(closest_index_ithr)<<" (MEASURED)"<<std::endl;
 			
 			}
 		}
@@ -217,7 +244,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 
 	}
 	can->Print(Form("fit_HIC%0.0f_vbb%0.0f_threshold%0.0f.pdf",HICnum,VBB_ref,threshold));
-	/*
+	
 	//test: fit on VCASN distribution
 	//fixed ithr=50
 	TGraphErrors* vcasn_graph[NCHIP];
@@ -250,7 +277,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 
 
 	//test: optimisation of procedure: interpolation on VCASN and ITHR and surface design to find the best value
-
+/*
 	TH2I* graph_surf[NCHIP];
 	TGraph2D* tgraph_surf[NCHIP];
 	for(int iChip=0;iChip<NCHIP;++iChip){
@@ -301,6 +328,6 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	can->Print("test_surf.pdf");
 	
 	can->Print("test_surf.pdf]");
-	*/
+*/
 	return;
 }
