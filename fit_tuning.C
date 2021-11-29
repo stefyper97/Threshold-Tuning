@@ -22,9 +22,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	
 	//testing the selection of correct VBB value
 	bool vbb_test=false;
-	if(VBB_ref==0) vbb_test=true;
-	if(VBB_ref==-1)vbb_test=true;
-	if(VBB_ref==-3) vbb_test=true;
+	if(VBB_ref==0 || VBB_ref==-1 || VBB_ref==-3) vbb_test=true;
 
 	if(!vbb_test){ 
 		std::cout<<"Warning! The selected VBB value is not correct. The allowed values are 0, -1 and -3."<<std::endl;
