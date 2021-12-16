@@ -159,7 +159,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		}
 
 		double vcasn_ref=vcasn_val[iChip].at(closest_index_vcasn);
-		std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<std::endl;
+		std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<". Threshold value is "<<std::dec<<thr_val[iChip].at(closest_index_vcasn)<<std::endl;
 		vcasn_bestvalue[iChip]=vcasn_ref;
 	}
 
