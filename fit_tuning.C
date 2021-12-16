@@ -150,7 +150,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		for(int iV=0;iV<vcasn_list.size();++iV){
 			for(int iA=0;iA<vcasn_val[iChip].size();++iA){
 				if(vcasn_val[iChip].at(iA)==vcasn_list.at(iV) &&ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref){
-					if(abs(thr_val[iChip].at(iA)-threshold)<diff) {
+					if(abs(thr_val[iChip].at(iA)-threshold)<diff && thr_val[iChip].at(iA)<threshold) {
 						closest_index_vcasn=iA;
 						diff=abs(thr_val[iChip].at(iA)-threshold);
 					}
@@ -173,7 +173,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 				"VCASN = 0x"<<std::hex<<(int)vcasn_bestvalue[iChip]<<std::endl<<
 				"VCASN2 = 0x"<<std::hex<<(int)(vcasn_bestvalue[iChip]+12)<<std::endl;
 
-			graph_val[iChip]=new TGraphErrors(12); //number of points will be fixed?
+			graph_val[iChip]=new TGraphErrors(3); //number of points will be fixed?
 			int entry=0;
 			for(int iA=0;iA<vcasn_val[iChip].size();++iA){
 	
