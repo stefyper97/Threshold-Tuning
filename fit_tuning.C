@@ -67,8 +67,15 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	std::vector<double> thr_err_val[NCHIP];
 	std::vector<double> noise_val[NCHIP];
 	std::vector<double> noise_err_val[NCHIP];
+
+	bool goodchip[NCHIP];
 	//getting information from entry 0
 	tree->GetEntry(0);
+
+	for(int iChip=0; iChip<NCHIP;++iChip){
+		if(vcasn[iChip]<0) goodchip[iChip]=false;
+		else goodchip[iChip]=true;
+	}
 
 	std::cout<<"Running analysis on threshold on HIC "<<HICnum<<std::endl;
 
@@ -124,43 +131,56 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 
 	for(int iChip=0;iChip<NCHIP;++iChip){
 		vcasn_bestvalue[iChip]=-9999; //negative flag to identify missing chips
-		}
+	}
 
-		for(int iChip=0;iChip<NCHIP;++iChip){
-		//find vcasn values available for the given Vbb and chip and create a list
-		std::vector<double>vcasn_list;
-		
-		for(int iV=0;iV<vcasn_val[iChip].size();++iV){
-			bool add_vcasn=true;
-			//std::cout<<vcasn_val.at(iV)<<"\t";
-			if(vbb_val.at(iV)==VBB_ref){
-				for(int iVC=0;iVC<vcasn_list.size();++iVC){
-					if(vcasn_val[iChip].at(iV)==vcasn_list.at(iVC)) add_vcasn=false;
-				}
-			} else
-			add_vcasn=false;
+	for(int iChip=0;iChip<NCHIP;++iChip){
+		if(goodchip[iChip]){
+			//find vcasn values available for the given Vbb and chip and create a list
+			std::vector<double>vcasn_list;
+			
+			for(int iV=0;iV<vcasn_val[iChip].size();++iV){
+				bool add_vcasn=true;
+				//std::cout<<vcasn_val.at(iV)<<"\t";
+				if(vbb_val.at(iV)==VBB_ref){
+					for(int iVC=0;iVC<vcasn_list.size();++iVC){
+						if(vcasn_val[iChip].at(iV)==vcasn_list.at(iVC)) add_vcasn=false;
+					}
+				} else
+				add_vcasn=false;
 
-			if(add_vcasn)vcasn_list.push_back(vcasn_val[iChip].at(iV));
-		}
+				if(add_vcasn)vcasn_list.push_back(vcasn_val[iChip].at(iV));
+			}
 
-		std::cout<<"Thresholds for chip 0x"<<std::hex<<chipname[iChip]<<std::endl;
-		//loop on each vcasn. Using ITHR=50 as reference. Comparing with threshold to find the closest value
-		int closest_index_vcasn=-9999;
-		double diff=999999;
-		for(int iV=0;iV<vcasn_list.size();++iV){
-			for(int iA=0;iA<vcasn_val[iChip].size();++iA){
-				if(vcasn_val[iChip].at(iA)==vcasn_list.at(iV) &&ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref){
-					if(abs(thr_val[iChip].at(iA)-threshold)<diff && thr_val[iChip].at(iA)<threshold) {
-						closest_index_vcasn=iA;
-						diff=abs(thr_val[iChip].at(iA)-threshold);
+			std::cout<<"Thresholds for chip 0x"<<std::hex<<chipname[iChip]<<std::endl;
+			//loop on each vcasn. Using ITHR=50 as reference. Comparing with threshold to find the closest value
+			int closest_index_vcasn=-9999;
+			double diff=999999;
+			for(int iV=0;iV<vcasn_list.size();++iV){
+				for(int iA=0;iA<vcasn_val[iChip].size();++iA){
+					if(vcasn_val[iChip].at(iA)==vcasn_list.at(iV) &&ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref){
+						std::cout<<"test"<<std::endl;
+						if(abs(thr_val[iChip].at(iA)-threshold)<diff && thr_val[iChip].at(iA)<threshold) {
+							closest_index_vcasn=iA;
+							diff=abs(thr_val[iChip].at(iA)-threshold);
+							//std::cout<<diff<<std::endl;
+						}
 					}
 				}
 			}
+
+			if(closest_index_vcasn>0){ 
+				double vcasn_ref=vcasn_val[iChip].at(closest_index_vcasn);
+				std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<". Threshold value is "<<std::dec<<thr_val[iChip].at(closest_index_vcasn)<<std::endl;
+				vcasn_bestvalue[iChip]=vcasn_ref;
+			}
+			else {//goodchip[iChip]=false;
+				std::cout<<"Not possible to find a VCASN value close to the target. Setting it to default value (0x32)"<<std::endl;
+				vcasn_bestvalue[iChip]=0x32;
+
+			}
+
 		}
 
-		double vcasn_ref=vcasn_val[iChip].at(closest_index_vcasn);
-		std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<". Threshold value is "<<std::dec<<thr_val[iChip].at(closest_index_vcasn)<<std::endl;
-		vcasn_bestvalue[iChip]=vcasn_ref;
 	}
 
 	//prepare graph for fit
@@ -168,68 +188,70 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 
 	//loop on chips to find the best ITHR (VCASN fixed)
 	for(int iChip=0;iChip<NCHIP;++iChip){
-		if(vcasn_bestvalue[iChip]>0){
-			conf_output<<"[0x"<<std::hex<<chipname[iChip]<<"]"<<std::endl<<
-				"VCASN = 0x"<<std::hex<<(int)vcasn_bestvalue[iChip]<<std::endl<<
-				"VCASN2 = 0x"<<std::hex<<(int)(vcasn_bestvalue[iChip]+12)<<std::endl;
+		if(goodchip[iChip]){
+			if(vcasn_bestvalue[iChip]>0){
+				conf_output<<"[0x"<<std::hex<<chipname[iChip]<<"]"<<std::endl<<
+					"VCASN = 0x"<<std::hex<<(int)vcasn_bestvalue[iChip]<<std::endl<<
+					"VCASN2 = 0x"<<std::hex<<(int)(vcasn_bestvalue[iChip]+12)<<std::endl;
 
-			graph_val[iChip]=new TGraphErrors(3); //number of points will be fixed?
-			int entry=0;
-			for(int iA=0;iA<vcasn_val[iChip].size();++iA){
-	
-				if(vcasn_val[iChip].at(iA)==vcasn_bestvalue[iChip] && vbb_val.at(iA)==VBB_ref){
-					graph_val[iChip]->SetPoint(entry,ithr_val[iChip].at(iA),thr_val[iChip].at(iA));
-					graph_val[iChip]->SetPointError(entry,0,thr_err_val[iChip].at(iA));
-					++entry;
-				}
-			}
-			//labeling plots
-			graph_val[iChip]->SetTitle(Form("0x%x VCASN %0.0f",chipname[iChip],vcasn_bestvalue[iChip]));
-			graph_val[iChip]->GetXaxis()->SetTitle("ITHR");
-			graph_val[iChip]->GetYaxis()->SetTitle("threshold [e-]");
-	
-			//graph fit with linear function
-			graph_val[iChip]->Fit("pol1","S");
-	
-			double chisquare=graph_val[iChip]->GetFunction("pol1")->GetChisquare();
-
-			//TO DO: improve check on fit convergence.
-			if(chisquare){
-				//if fit converges, the parameters are used to finf the best guess for ITHR
-				double p0=graph_val[iChip]->GetFunction("pol1")->GetParameter(0);
-				double p1=graph_val[iChip]->GetFunction("pol1")->GetParameter(1);
+				graph_val[iChip]=new TGraphErrors(3); //number of points will be fixed?
+				int entry=0;
+				for(int iA=0;iA<vcasn_val[iChip].size();++iA){
 		
-				double p0_err=graph_val[iChip]->GetFunction("pol1")->GetParError(0);
-				double p1_err=graph_val[iChip]->GetFunction("pol1")->GetParError(1);
-		
-				//std::cout<<"p0 "<<p0<<" p0_err "<<p0_err<<" p1 "<<p1<<" p1_err "<<p1_err<<std::endl;
-		
-				//best value calculation
-				double ithr_threshold=(threshold-p0)/p1;
-		
-				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl;
-				//writing conf file
-				conf_output<<"ITHR = 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl<<std::endl;
-				std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<p0+p1*ithr_threshold<<" (FIT)"<<std::endl;
-			}
-			else{
-				//if fit does not converge, the existing data are used to find the best value of ITHR. A warning is inserted as a comment on conf file
-				std::cout<<"Fit does not converge. Using available data to find the best ITHR value"<<std::endl;
-				int closest_index_ithr=-9999;
-				double diff=999999;
-				for(int iA=0;iA<ithr_val[iChip].size();++iA){
 					if(vcasn_val[iChip].at(iA)==vcasn_bestvalue[iChip] && vbb_val.at(iA)==VBB_ref){
-						if(abs(thr_val[iChip].at(iA)-threshold)<diff) {
-							closest_index_ithr=iA;
-							diff=abs(thr_val[iChip].at(iA)-threshold);
-						}
+						graph_val[iChip]->SetPoint(entry,ithr_val[iChip].at(iA),thr_val[iChip].at(iA));
+						graph_val[iChip]->SetPointError(entry,0,thr_err_val[iChip].at(iA));
+						++entry;
 					}
 				}
-			std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl;
-			conf_output<<"ITHR = 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl<<
-			"; Warning! Fit doesn't converge. Using available data to find the best value"<<std::endl<<std::endl;
-			std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<(int)thr_val[iChip].at(closest_index_ithr)<<" err "<<(int)thr_err_val[iChip].at(closest_index_ithr)<<" (MEASURED)"<<std::endl;
+				//labeling plots
+				graph_val[iChip]->SetTitle(Form("0x%x VCASN %0.0f",chipname[iChip],vcasn_bestvalue[iChip]));
+				graph_val[iChip]->GetXaxis()->SetTitle("ITHR");
+				graph_val[iChip]->GetYaxis()->SetTitle("threshold [e-]");
+		
+				//graph fit with linear function
+				graph_val[iChip]->Fit("pol1","S");
+		
+				double chisquare=graph_val[iChip]->GetFunction("pol1")->GetChisquare();
+
+				//TO DO: improve check on fit convergence.
+				if(chisquare){
+					//if fit converges, the parameters are used to finf the best guess for ITHR
+					double p0=graph_val[iChip]->GetFunction("pol1")->GetParameter(0);
+					double p1=graph_val[iChip]->GetFunction("pol1")->GetParameter(1);
 			
+					double p0_err=graph_val[iChip]->GetFunction("pol1")->GetParError(0);
+					double p1_err=graph_val[iChip]->GetFunction("pol1")->GetParError(1);
+			
+					//std::cout<<"p0 "<<p0<<" p0_err "<<p0_err<<" p1 "<<p1<<" p1_err "<<p1_err<<std::endl;
+			
+					//best value calculation
+					double ithr_threshold=(threshold-p0)/p1;
+			
+					std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl;
+					//writing conf file
+					conf_output<<"ITHR = 0x"<<std::hex<<(int)round(ithr_threshold)<<std::endl<<std::endl;
+					std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<p0+p1*ithr_threshold<<" (FIT)"<<std::endl;
+				}
+				else{
+					//if fit does not converge, the existing data are used to find the best value of ITHR. A warning is inserted as a comment on conf file
+					std::cout<<"Fit does not converge. Using available data to find the best ITHR value"<<std::endl;
+					int closest_index_ithr=-9999;
+					double diff=999999;
+					for(int iA=0;iA<ithr_val[iChip].size();++iA){
+						if(vcasn_val[iChip].at(iA)==vcasn_bestvalue[iChip] && vbb_val.at(iA)==VBB_ref){
+							if(abs(thr_val[iChip].at(iA)-threshold)<diff) {
+								closest_index_ithr=iA;
+								diff=abs(thr_val[iChip].at(iA)-threshold);
+							}
+						}
+					}
+				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl;
+				conf_output<<"ITHR = 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl<<
+				"; Warning! Fit doesn't converge. Using available data to find the best value"<<std::endl<<std::endl;
+				std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<(int)thr_val[iChip].at(closest_index_ithr)<<" err "<<(int)thr_err_val[iChip].at(closest_index_ithr)<<" (MEASURED)"<<std::endl;
+				
+				}
 			}
 		}
 	}
@@ -240,10 +262,11 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	can->Divide(5,2);
 
 	for(int iChip=0;iChip<NCHIP;++iChip){
-		can->cd(iChip+1);
-		graph_val[iChip]->SetMarkerStyle(22);
-		graph_val[iChip]->Draw("AP");
-
+		if(goodchip[iChip]){
+			can->cd(iChip+1);
+			graph_val[iChip]->SetMarkerStyle(22);
+			graph_val[iChip]->Draw("AP");
+		}
 	}
 	can->Print(Form("fit_HIC%d_vbb%0.0f_threshold%0.0f.pdf",HICnum,VBB_ref,threshold));
 	
@@ -251,28 +274,30 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	//fixed ithr=50
 	TGraphErrors* vcasn_graph[NCHIP];
 	for(int iChip=0;iChip<NCHIP;++iChip){
-		vcasn_graph[iChip]=new TGraphErrors(10);
-		int entry=0;
-		for(int iA=0;iA<vcasn_val[iChip].size();++iA){
-			if(ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref && thr_val[iChip].at(iA)>0){
-				vcasn_graph[iChip]->SetPoint(entry,vcasn_val[iChip].at(iA),thr_val[iChip].at(iA));
-				vcasn_graph[iChip]->SetPointError(entry,0,thr_err_val[iChip].at(iA));
-				++entry;
+		if(goodchip[iChip]){
+			vcasn_graph[iChip]=new TGraphErrors(10);
+			int entry=0;
+			for(int iA=0;iA<vcasn_val[iChip].size();++iA){
+				if(ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref && thr_val[iChip].at(iA)>0){
+					vcasn_graph[iChip]->SetPoint(entry,vcasn_val[iChip].at(iA),thr_val[iChip].at(iA));
+					vcasn_graph[iChip]->SetPointError(entry,0,thr_err_val[iChip].at(iA));
+					++entry;
+				}
 			}
+			vcasn_graph[iChip]->Fit("expo");
+
+			double p0_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(0);
+			double p1_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(1);
+
+			int vcasn_guess=round((log(threshold)-p0_exp)/p1_exp);
+
+			std::cout<<"Fit guess of VCASN for chip 0x"<<std::hex<<chipname[iChip]<<" is "<<std::dec<<vcasn_guess<<std::endl;
+
+			can->cd(iChip+1);
+			vcasn_graph[iChip]->SetTitle(Form("0x%x;VCASN;threshold [e-]",chipname[iChip]));
+			vcasn_graph[iChip]->SetMarkerStyle(22);
+			vcasn_graph[iChip]->Draw("AP");
 		}
-		vcasn_graph[iChip]->Fit("expo");
-
-		double p0_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(0);
-		double p1_exp=vcasn_graph[iChip]->GetFunction("expo")->GetParameter(1);
-
-		int vcasn_guess=round((log(threshold)-p0_exp)/p1_exp);
-
-		std::cout<<"Fit guess of VCASN for chip 0x"<<std::hex<<chipname[iChip]<<" is "<<std::dec<<vcasn_guess<<std::endl;
-
-		can->cd(iChip+1);
-		vcasn_graph[iChip]->SetTitle(Form("0x%x;VCASN;threshold [e-]",chipname[iChip]));
-		vcasn_graph[iChip]->SetMarkerStyle(22);
-		vcasn_graph[iChip]->Draw("AP");
 	}
 
 	can->Print("test_vcasn_fit.pdf");
