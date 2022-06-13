@@ -72,9 +72,12 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	//getting information from entry 0
 	tree->GetEntry(0);
 
+	//checking for disconnected chips
 	for(int iChip=0; iChip<NCHIP;++iChip){
 		if(vcasn[iChip]<0) goodchip[iChip]=false;
 		else goodchip[iChip]=true;
+
+		//std::cout<<"0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<goodchip[iChip]<<std::endl;
 	}
 
 	std::cout<<"Running analysis on threshold on HIC "<<HICnum<<std::endl;
@@ -114,7 +117,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		<<"; Values for VBB = "<<VBB_ref<<std::endl<<std::endl;	
 
 	//inserting VCLIP values for different VBB values
-	conf_output<<"[0xf0f]"<<std::endl;
+	conf_output<<"[0x"<<HICnum<<"0f]"<<std::endl;
 	if(VBB_ref==0)
 		conf_output<<"VCLIP = 0x0"<<std::endl<<std::endl;
 	if (VBB_ref==-1)
@@ -158,31 +161,29 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 			for(int iV=0;iV<vcasn_list.size();++iV){
 				for(int iA=0;iA<vcasn_val[iChip].size();++iA){
 					if(vcasn_val[iChip].at(iA)==vcasn_list.at(iV) &&ithr_val[iChip].at(iA)==ithr_ref && vbb_val.at(iA)==VBB_ref){
-						std::cout<<"test"<<std::endl;
 						if(abs(thr_val[iChip].at(iA)-threshold)<diff && thr_val[iChip].at(iA)<threshold) {
+							std::cout<<vcasn_list.at(iV)<< "   "<<thr_val[iChip].at(iA)<<std::endl;
 							closest_index_vcasn=iA;
 							diff=abs(thr_val[iChip].at(iA)-threshold);
-							//std::cout<<diff<<std::endl;
 						}
 					}
 				}
 			}
 
-			if(closest_index_vcasn>0){ 
+			if(closest_index_vcasn>=0){ 
 				double vcasn_ref=vcasn_val[iChip].at(closest_index_vcasn);
-				std::cout<<" The VCASN value that gives the threshold value closest to "<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<". Threshold value is "<<std::dec<<thr_val[iChip].at(closest_index_vcasn)<<std::endl;
+				std::cout<<" The VCASN value that gives the threshold value closest to "<<std::dec<<threshold<<" is 0x"<<std::hex<<(int)vcasn_ref<<". Threshold value is "<<std::dec<<thr_val[iChip].at(closest_index_vcasn)<<std::endl;
 				vcasn_bestvalue[iChip]=vcasn_ref;
 			}
 			else {//goodchip[iChip]=false;
-				std::cout<<"Not possible to find a VCASN value close to the target. Setting it to default value (0x32)"<<std::endl;
-				vcasn_bestvalue[iChip]=0x32;
-
+				vcasn_bestvalue[iChip]=*(std::min_element(vcasn_list.begin(),vcasn_list.end()));
+				std::cout<<"Not possible to find a VCASN value close to the target. Setting it to minimum value ("<<std::hex<<vcasn_bestvalue[iChip]<<")"<<std::endl;
+				//vcasn_bestvalue[iChip]=0x32; //true only for 0 Vbb
+				
 			}
-
 		}
-
 	}
-
+	
 	//prepare graph for fit
 	TGraphErrors* graph_val[NCHIP];
 
@@ -190,7 +191,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	for(int iChip=0;iChip<NCHIP;++iChip){
 		if(goodchip[iChip]){
 			if(vcasn_bestvalue[iChip]>0){
-				conf_output<<"[0x"<<std::hex<<chipname[iChip]<<"]"<<std::endl<<
+				conf_output<<"[0x"<<HICnum<<std::hex<<chipname[iChip]<<"]"<<std::endl<<
 					"VCASN = 0x"<<std::hex<<(int)vcasn_bestvalue[iChip]<<std::endl<<
 					"VCASN2 = 0x"<<std::hex<<(int)(vcasn_bestvalue[iChip]+12)<<std::endl;
 
@@ -247,7 +248,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 						}
 					}
 				std::cout<<"ITHR best value to have a threshold of "<<threshold <<" e- should be 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl;
-				conf_output<<"ITHR = 0x"<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl<<
+				conf_output<<"ITHR = 0x"<<HICnum<<std::hex<<(int)ithr_val[iChip].at(closest_index_ithr)<<std::endl<<
 				"; Warning! Fit doesn't converge. Using available data to find the best value"<<std::endl<<std::endl;
 				std::cout<<"Expected threshold for chip 0x"<<std::hex<<chipname[iChip]<<" "<<std::dec<<(int)thr_val[iChip].at(closest_index_ithr)<<" err "<<(int)thr_err_val[iChip].at(closest_index_ithr)<<" (MEASURED)"<<std::endl;
 				
@@ -269,7 +270,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 		}
 	}
 	can->Print(Form("fit_HIC%d_vbb%0.0f_threshold%0.0f.pdf",HICnum,VBB_ref,threshold));
-	
+	/*
 	//test: fit on VCASN distribution
 	//fixed ithr=50
 	TGraphErrors* vcasn_graph[NCHIP];
@@ -301,7 +302,7 @@ void threshold_tuning(const char* path_to_file="Threshold_Parameters.root",const
 	}
 
 	can->Print("test_vcasn_fit.pdf");
-
+	*/
 
 	//test: optimisation of procedure: interpolation on VCASN and ITHR and surface design to find the best value
 /*
